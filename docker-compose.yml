@@ -1,0 +1,11 @@
+version: "3.7"
+
+services:
+  ionos_ddns_updater:
+    build: .
+    restart: unless-stopped
+    tty: true
+    stdin_open: true
+    environment:
+      APIKey: ""
+      Domains_0: "*.test.de"
