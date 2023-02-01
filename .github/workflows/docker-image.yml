@@ -1,0 +1,22 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+
+  build_n_push:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Build the Docker image
+      run: docker build . --file Dockerfile --tag saile2204/ionos_ddns_updater:$(date +%s)
+    - name: Dockerhub Login
+      run: docker login --username=${DOCKERUSERNAME} --password=${DOCKERPASSWORD}
+    - name: Push to Dockerhub
+      run: docker push saile2204/ionos_ddns_updater:$(date +%s)
