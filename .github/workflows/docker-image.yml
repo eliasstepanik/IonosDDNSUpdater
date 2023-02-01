@@ -21,7 +21,10 @@ jobs:
         install: true
     
     - name: Docker Build and Tag
-      run: docker build --load -t saile2204/ionos_ddns_updater:latest -t saile2204/ionos_ddns_updater:$(date +%s) .
+      run: docker build --load -t saile2204/ionos_ddns_updater:latest -t saile2204/ionos_ddns_updater:$GITHUB_SHA .
+    
+    - name: Docker Build and Tagd
+      run: docker build --load -t saile2204/ionos_ddns_updater:$(date +%s) .
     
     - name: Log in to Docker Hub
       uses: docker/login-action@v1
@@ -32,4 +35,4 @@ jobs:
     - name: Push to Dockerhub
       run: |
           docker push saile2204/ionos_ddns_updater:latest
-          docker push saile2204/ionos_ddns_updater:$(date +%s)
+          docker push saile2204/ionos_ddns_updater:$GITHUB_SHA
