@@ -21,8 +21,21 @@ public class DDNSService : IDDNSService
     {
         _logger = logger;
         APIKey = configuration.GetValue<string>("APIKey");
+        if(Environment.GetEnvironmentVariable("API_Key") != "")
+            APIKey = Environment.GetEnvironmentVariable("API_Key");
+        
         logger.LogDebug($"Got the Following Key: {APIKey}");
         Domains = configuration.GetSection("Domains").Get<List<string>>();
+        if (Environment.GetEnvironmentVariable("DOMAINS") != "")
+        {
+            var domainsRaw = Environment.GetEnvironmentVariable("DOMAINS");
+            var domains = new List<string>();
+            domains = domainsRaw.Split(",").ToList();
+            domains.ForEach(x=>x.Replace(",",""));
+            Domains = domains;
+        }
+            
+        
         logger.LogDebug($"Got the Following Domains: {Domains.ToString()}");
     }
     

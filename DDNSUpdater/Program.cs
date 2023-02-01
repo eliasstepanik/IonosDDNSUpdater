@@ -8,6 +8,8 @@ using RestSharp;
 var builder = new ConfigurationBuilder()
     .AddJsonFile("appsettings.json", optional: false, reloadOnChange: false);
 
+
+
 var configuration = builder.Build();
 
 
@@ -17,6 +19,9 @@ var serviceProvider = new ServiceCollection()
     .AddSingleton<ITimerService, TimerService>()
     .AddSingleton<DDNSService>()
     .BuildServiceProvider();
+
+
+
 
 var dataAccess = serviceProvider.GetService<DDNSService>();
 dataAccess.Start();
