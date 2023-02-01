@@ -21,7 +21,9 @@ public class DDNSService : IDDNSService
     {
         _logger = logger;
         APIKey = configuration.GetValue<string>("APIKey");
+        logger.LogDebug($"Got the Following Key: {APIKey}");
         Domains = configuration.GetSection("Domains").Get<List<string>>();
+        logger.LogDebug($"Got the Following Domains: {Domains.ToString()}");
     }
     
     public async void Start()
