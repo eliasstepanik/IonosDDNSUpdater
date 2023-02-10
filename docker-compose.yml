@@ -2,10 +2,10 @@ version: "3.7"
 
 services:
   ionos_ddns_updater:
-    build: .
+    image: saile2204/ionos_ddns_updater:latest
     restart: unless-stopped
     tty: true
     stdin_open: true
     environment:
-      APIKey: ""
-      Domains_0: "*.test.de"
+      API_Key: ""
+      DOMAINS: "subdomain.domain.de,domain.de"
