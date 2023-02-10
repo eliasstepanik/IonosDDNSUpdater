@@ -30,7 +30,7 @@ To use the IonosDynamicDNSUpdater, follow these steps:
 ### Running in a Docker container
 
 1. Build the Docker image using `docker build -t ionosdynamicdnsupdater .`.
-2. Run the Docker container using `docker run -d ionosdynamicdnsupdater`.
+2. Run the Docker container using `docker run -d -e API_KEY=<your_api_key> -e DOMAINS=<comma_separated_list_of_domains> ionosdynamicdnsupdater`.
 
 ### Using Docker Compose
 
