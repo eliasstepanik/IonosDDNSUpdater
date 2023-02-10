@@ -35,7 +35,7 @@ To use the IonosDynamicDNSUpdater, follow these steps:
 ### Using Docker Compose
 
 1. Create an API token in Ionos.
-2. Replace the placeholder values in `appsettings.json` with your Ionos API token and the hostname for the DNS record you want to update.
+2. Replace the placeholder values in `docker-compose.yml` with your Ionos API token and the hostname for the DNS record you want to update.
 3. Start the services using `docker-compose up -d`.
 
 ## Contributing
