@@ -2,7 +2,7 @@ version: "3.7"
 
 services:
   ionos_ddns_updater:
-    image: saile2204/ionos_ddns_updater:latest
+    build: .
     restart: unless-stopped
     tty: true
     stdin_open: true
