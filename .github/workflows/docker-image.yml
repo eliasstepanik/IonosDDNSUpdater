@@ -25,7 +25,7 @@ jobs:
         install: true
     
     - name: Docker Build and Tag
-      run: docker build --load -t saile2204/ionos_ddns_updater:latest -t saile2204/ionos_ddns_updater:$GITHUB_SHA .
+      run: docker build --load -t saile2204/ionos_ddns_updater:latest-${{ steps.extract_branch.outputs.branch }} -t saile2204/ionos_ddns_updater:${{ steps.extract_branch.outputs.branch }}-$GITHUB_SHA .
     
     - name: Docker Build and Tagd
       run: docker build --load -t saile2204/ionos_ddns_updater:$(date +%s) .
