@@ -15,6 +15,4 @@ RUN dotnet publish "DDNSUpdater.csproj" -c Release -o /app/publish
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENV API_Key=default
-ENV DOMAINS=default
 ENTRYPOINT ["dotnet", "DDNSUpdater.dll"]

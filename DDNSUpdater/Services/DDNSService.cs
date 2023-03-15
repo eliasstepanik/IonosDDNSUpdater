@@ -1,5 +1,7 @@
-﻿using System.Net;
+﻿using System.Collections;
+using System.Net;
 using DDNSUpdater.Interfaces;
+using DDNSUpdater.Models;
 using DDNSUpdater.Models.Requests;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -11,28 +13,28 @@ namespace DDNSUpdater.Services;
 
 public class DDNSService : IDDNSService
 {
-    private string UpdateURL { get; set; }
-    public string APIKey { get; set; }
-    public List<string> Domains { get; set; }
+    private List<string> UpdateURLs { get; set; }
+    public List<Domain> Domains { get; set; }
     
     private readonly ILogger<DDNSService> _logger;
     
     public DDNSService(ILogger<DDNSService> logger,IConfiguration configuration)
     {
         _logger = logger;
-        APIKey = configuration.GetValue<string>("APIKey");
-        if(Environment.GetEnvironmentVariable("API_Key") != "")
-            APIKey = Environment.GetEnvironmentVariable("API_Key");
         
-        logger.LogDebug($"Got the Following Key: {APIKey}");
-        Domains = configuration.GetSection("Domains").Get<List<string>>();
-        if (Environment.GetEnvironmentVariable("DOMAINS") != "")
+        foreach (DictionaryEntry de in Environment.GetEnvironmentVariables())
         {
-            var domainsRaw = Environment.GetEnvironmentVariable("DOMAINS");
-            var domains = new List<string>();
-            domains = domainsRaw.Split(",").ToList();
-            domains.ForEach(x=>x.Replace(",",""));
-            Domains = domains;
+            if (de.Key.ToString().Contains("DOMAIN"))
+            {
+                var key = de.Value.ToString().Split("-").ToList();
+                
+                key.ForEach(x=>x.Replace("-",""));
+
+                var env = de.Value.ToString().Split(";").ToList();
+                
+                
+                Domains[int.Parse(key[1])] = new Domain(env[0],env[1]);
+            }
         }
             
         
@@ -41,62 +43,83 @@ public class DDNSService : IDDNSService
     
     public async void Start()
     {
-        UpdateURL = await GetUpdateURL();
-        _logger.LogInformation("Got new Update URL: " + UpdateURL);
+        UpdateURLs = await GetUpdateURLs();
+        _logger.LogInformation("Got new Update URLs: " + UpdateURLs);
     }
 
     public async void Update()
     {
-        var client = new RestClient(UpdateURL);
-        var request = new RestRequest("",Method.Get);
-        request.AddHeader("Cookie", "0b04270753322c986927738ac2b6c0d8=ea099cbd8a6109c688f9831d6bbfa7a1; 5b66c83e4535f5f6bef8295496cfe559=e85228fccae97f107478bf9ef664e4eb; DPX=v1:ghOJrOzFTj:htgOaKFW:63d3bf8f:de");
-        var body = @"";
-        request.AddParameter("text/plain", body,  ParameterType.RequestBody);
+        foreach (var UpdateURL in UpdateURLs)
+        {
+            var client = new RestClient(UpdateURL);
+            var request = new RestRequest("",Method.Get);
+            request.AddHeader("Cookie", "0b04270753322c986927738ac2b6c0d8=ea099cbd8a6109c688f9831d6bbfa7a1; 5b66c83e4535f5f6bef8295496cfe559=e85228fccae97f107478bf9ef664e4eb; DPX=v1:ghOJrOzFTj:htgOaKFW:63d3bf8f:de");
+            var body = @"";
+            request.AddParameter("text/plain", body,  ParameterType.RequestBody);
 
-        try
-        {
-            var response = await client.ExecuteAsync(request);
-            _logger.LogInformation("Send Update to Ionos");
+            try
+            {
+                var response = await client.ExecuteAsync(request);
+                _logger.LogInformation("Send Update to Ionos");
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+                throw;
+            }
         }
-        catch (Exception e)
-        {
-            _logger.LogError(e.Message);
-            throw;
-        }
-        
+
     }
 
     public async void SetUpdateURL()
     {
-        UpdateURL = await GetUpdateURL();
+        UpdateURLs = await GetUpdateURLs();
     }
 
-    private async Task<string> GetUpdateURL()
+    private async Task<List<string>> GetUpdateURLs()
     {
-        var dyndns = new DynamicDns()
+        List<string> updateURLs = new List<string>();
+        
+        Dictionary<string, List<string>> domainDict = new Dictionary<string, List<string>>();
+        foreach (var domain in Domains)
         {
-            Domains = Domains,
-            Description = "My DynamicDns"
-        };
-        var content = JsonConvert.SerializeObject(dyndns);
-        var client = new RestClient("https://api.hosting.ionos.com/dns/v1");
-        var request = new RestRequest("/dyndns", Method.Post);
-        
-        
-        request.AddHeader("X-API-Key", APIKey);
-        
-        request.AddStringBody(content, ContentType.Json);
-        
-        
-        try
-        {
-            var response =  client.ExecutePost<DynamicDnsResponse>(request);
-            return response.Data.UpdateUrl;
+            if (!domainDict.ContainsKey(domain.Key))
+            {
+                domainDict.Add(domain.Key, new List<string>());
+            }
+            
+            domainDict[domain.Key].Add(domain.DomainString);
         }
-        catch (Exception error)
+
+        foreach (var domainList in domainDict)
         {
-            _logger.LogError(error.Message);
-            return "";
+            var dyndns = new DynamicDns()
+            {
+                Domains = domainList.Value,
+                Description = "My DynamicDns"
+            };
+            var content = JsonConvert.SerializeObject(dyndns);
+            var client = new RestClient("https://api.hosting.ionos.com/dns/v1");
+            var request = new RestRequest("/dyndns", Method.Post);
+        
+        
+            request.AddHeader("X-API-Key", domainList.Key);
+        
+            request.AddStringBody(content, ContentType.Json);
+        
+        
+            try
+            {
+                var response =  client.ExecutePost<DynamicDnsResponse>(request);
+                updateURLs.Add(response.Data.UpdateUrl);
+            }
+            catch (Exception error)
+            {
+                _logger.LogError(error.Message);
+                return null;
+            }
         }
+
+        return updateURLs;
     }
 }
