@@ -7,5 +7,5 @@ services:
     tty: true
     stdin_open: true
     environment:
-      Domains_0: "*.test.de;Key"
-      Domains_1: "*.test.de;Key"
+      API_Key: ""
+      DOMAINS: "subdomain.domain.de,domain.de"
