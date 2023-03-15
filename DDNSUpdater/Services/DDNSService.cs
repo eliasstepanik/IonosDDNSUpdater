@@ -24,16 +24,14 @@ public class DDNSService : IDDNSService
         
         foreach (DictionaryEntry de in Environment.GetEnvironmentVariables())
         {
+
             if (de.Key.ToString().Contains("DOMAIN"))
             {
-                var key = de.Value.ToString().Split("-").ToList();
-                
-                key.ForEach(x=>x.Replace("-",""));
-
+                // domain;key
                 var env = de.Value.ToString().Split(";").ToList();
-                
-                
-                Domains[int.Parse(key[1])] = new Domain(env[0],env[1]);
+
+
+                Domains.Add(new Domain(env[0], env[1]));
             }
         }
             
