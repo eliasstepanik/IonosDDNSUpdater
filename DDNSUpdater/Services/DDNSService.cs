@@ -21,11 +21,12 @@ public class DDNSService : IDDNSService
     public DDNSService(ILogger<DDNSService> logger,IConfiguration configuration)
     {
         _logger = logger;
+        Domains = new List<Domain>();
         
         foreach (DictionaryEntry de in Environment.GetEnvironmentVariables())
         {
 
-            if (de.Key.ToString().Contains("DOMAIN"))
+            if (de.Key.ToString().ToLower().Contains("domain"))
             {
                 // domain;key
                 var env = de.Value.ToString().Split(";").ToList();
