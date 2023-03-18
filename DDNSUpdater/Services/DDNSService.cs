@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Net;
 using DDNSUpdater.Interfaces;
+using DDNSUpdater.Logging;
 using DDNSUpdater.Models;
 using DDNSUpdater.Models.Requests;
 using Microsoft.Extensions.Configuration;
@@ -8,6 +9,8 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using RestSharp;
 using RestSharp.Serializers;
+using Spectre.Console;
+using Console = Spectre.Console.AnsiConsole;
 
 namespace DDNSUpdater.Services;
 
@@ -26,7 +29,7 @@ public class DDNSService : IDDNSService
         foreach (DictionaryEntry de in Environment.GetEnvironmentVariables())
         {
 
-            if (de.Key.ToString().ToLower().Contains("domain"))
+            if (de.Key.ToString().ToLower().Contains("domain-"))
             {
                 // domain;key
                 var env = de.Value.ToString().Split(";").ToList();
@@ -35,15 +38,15 @@ public class DDNSService : IDDNSService
                 Domains.Add(new Domain(env[0], env[1]));
             }
         }
-            
+
         
-        logger.LogDebug($"Got the Following Domains: {Domains.ToString()}");
     }
     
     public async void Start()
     {
+        _logger.LogInformation("Fetching UpdateURLs");
         UpdateURLs = await GetUpdateURLs();
-        _logger.LogInformation("Got new Update URLs: " + UpdateURLs);
+        _logger.LogInformation($"Fetched {UpdateURLs.Count} UpdateURLs");
     }
 
     public async void Update()
@@ -59,7 +62,7 @@ public class DDNSService : IDDNSService
             try
             {
                 var response = await client.ExecuteAsync(request);
-                _logger.LogInformation("Send Update to Ionos");
+                _logger.LogInformation("Requesting Update on Ionos.");
             }
             catch (Exception e)
             {
@@ -80,18 +83,32 @@ public class DDNSService : IDDNSService
         List<string> updateURLs = new List<string>();
         
         Dictionary<string, List<string>> domainDict = new Dictionary<string, List<string>>();
+        Dictionary<string,Table> tables = new Dictionary<string,Table>();
         foreach (var domain in Domains)
         {
+            
             if (!domainDict.ContainsKey(domain.Key))
             {
                 domainDict.Add(domain.Key, new List<string>());
+                var t = new Table();
+                t.AddColumn("Key");
+                t.AddColumn("Domain");
+                
+                tables.Add(domain.Key,t);
             }
             
             domainDict[domain.Key].Add(domain.DomainString);
+            tables[domain.Key].AddRow(domain.Key, domain.DomainString);
         }
+        foreach (var keyValuePair in tables)
+        {
+            Console.Write(tables[keyValuePair.Key]);
+        }
+        
 
         foreach (var domainList in domainDict)
         {
+
             var dyndns = new DynamicDns()
             {
                 Domains = domainList.Value,
