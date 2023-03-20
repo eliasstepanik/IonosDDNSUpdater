@@ -38,7 +38,7 @@ var serviceProvider = new ServiceCollection()
         {
             // Replace warning value from appsettings.json of "Cyan"
             configuration.LogLevelToColorMap[LogLevel.Warning] = ConsoleColor.DarkCyan;
-            configuration.LogLevelToColorMap[LogLevel.Debug] = ConsoleColor.Yellow;
+            configuration.LogLevelToColorMap[LogLevel.Debug] = ConsoleColor.DarkYellow;
             // Replace warning value from appsettings.json of "Red"
             configuration.LogLevelToColorMap[LogLevel.Error] = ConsoleColor.DarkRed;
         });
