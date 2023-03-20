@@ -45,8 +45,10 @@ public class DDNSService : IDDNSService
     public async void Start()
     {
         _logger.LogInformation("Fetching UpdateURLs");
+        UpdateURLs = await GetUpdateURLs();
         while (UpdateURLs == null || UpdateURLs.Count == 0 )
         {
+            _logger.LogInformation($"Fetching UpdateURLs again.");
             UpdateURLs = await GetUpdateURLs();
         }
         
