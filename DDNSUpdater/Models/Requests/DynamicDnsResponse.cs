@@ -1,4 +1,6 @@
-﻿namespace DDNSUpdater.Models.Requests;
+﻿using System.Collections.Generic;
+
+namespace DDNSUpdater.Models.Requests;
 
 public class DynamicDnsResponse
 {

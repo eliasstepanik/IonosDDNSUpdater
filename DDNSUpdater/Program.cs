@@ -1,4 +1,5 @@
-﻿using DDNSUpdater.Interfaces;
+﻿using System;
+using DDNSUpdater.Interfaces;
 using DDNSUpdater.Logging;
 using DDNSUpdater.Services;
 using Microsoft.Extensions.Configuration;

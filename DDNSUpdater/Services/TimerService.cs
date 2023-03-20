@@ -1,4 +1,6 @@
-﻿using DDNSUpdater.Interfaces;
+﻿using System;
+using System.Threading;
+using DDNSUpdater.Interfaces;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;

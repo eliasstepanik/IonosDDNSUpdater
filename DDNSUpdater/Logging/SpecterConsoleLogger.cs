@@ -1,4 +1,5 @@
-﻿using DDNSUpdater.Interfaces;
+﻿using System;
+using DDNSUpdater.Interfaces;
 using Microsoft.Extensions.Logging;
 using Spectre.Console;
 using Console = Spectre.Console.AnsiConsole;
