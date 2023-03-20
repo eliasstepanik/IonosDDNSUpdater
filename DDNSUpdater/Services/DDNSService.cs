@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
+using System.Net.Mime;
 using System.Threading.Tasks;
 using DDNSUpdater.Interfaces;
 using DDNSUpdater.Logging;
@@ -12,9 +14,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using RestSharp;
-using RestSharp.Serializers;
 using Spectre.Console;
 using Console = Spectre.Console.AnsiConsole;
+using ContentType = RestSharp.Serializers.ContentType;
 
 namespace DDNSUpdater.Services;
 
@@ -118,25 +120,32 @@ public class DDNSService : IDDNSService
 
         foreach (var domainList in domainDict)
         {
-
-            var dyndns = new DynamicDns()
-            {
-                Domains = domainList.Value,
-                Description = "My DynamicDns"
-            };
-            var content = JsonConvert.SerializeObject(dyndns);
-            var client = new RestClient("https://api.hosting.ionos.com/dns/v1");
-            var request = new RestRequest("/dyndns", Method.Post);
-        
-        
-            request.AddHeader("X-API-Key", domainList.Key);
-        
-            request.AddStringBody(content, ContentType.Json);
-        
-        
             try
             {
+                var dyndns = new DynamicDns()
+                {
+                    Domains = domainList.Value,
+                    Description = "My DynamicDns"
+                };
+                var content = JsonConvert.SerializeObject(dyndns);
+                var client = new RestClient("https://api.hosting.ionos.com/dns/v1");
+                var request = new RestRequest("/dyndns", Method.Post);
+        
+        
+                request.AddHeader("X-API-Key", domainList.Key);
+        
+                request.AddStringBody(content, ContentType.Json);
+        
                 var response =  client.ExecutePost<DynamicDnsResponse>(request);
+
+                if (response.StatusCode == HttpStatusCode.Forbidden)
+                {
+                    _logger.LogError($"Could not Fetch UpdateURL for {domainList.Key}");
+                    Environment.Exit(7);
+                }
+
+
+                _logger.LogDebug(response.Data.UpdateUrl);
                 updateURLs.Add(response.Data.UpdateUrl);
             }
             catch (Exception error)

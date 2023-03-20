@@ -8,9 +8,19 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using RestSharp;
 
+static T ParseEnum<T>(string value)
+{
+    return (T) Enum.Parse(typeof(T), value, true);
+}
+
 var builder = new ConfigurationBuilder()
     .AddJsonFile("appsettings.json", optional: false, reloadOnChange: false);
 
+LogLevel loglevel;
+if (Environment.GetEnvironmentVariables()["LogLevel"] != null)
+    loglevel = ParseEnum<LogLevel>(Environment.GetEnvironmentVariables()["LogLevel"].ToString());
+else
+    loglevel = LogLevel.Information;
 
 
 var configuration = builder.Build();
@@ -21,13 +31,20 @@ logConfig.CurrentValue.LogLevelToColorMap[LogLevel.Error] = ConsoleColor.DarkRed
 
 var serviceProvider = new ServiceCollection()
     .AddSingleton<IConfiguration>(configuration)
-    .AddLogging(logging => logging.AddSpecterConsoleLogger(configuration =>
+    .AddLogging(logging =>
     {
-        // Replace warning value from appsettings.json of "Cyan"
-        configuration.LogLevelToColorMap[LogLevel.Warning] = ConsoleColor.DarkCyan;
-        // Replace warning value from appsettings.json of "Red"
-        configuration.LogLevelToColorMap[LogLevel.Error] = ConsoleColor.DarkRed;
-    }))
+        
+        logging.AddSpecterConsoleLogger(configuration =>
+        {
+            // Replace warning value from appsettings.json of "Cyan"
+            configuration.LogLevelToColorMap[LogLevel.Warning] = ConsoleColor.DarkCyan;
+            configuration.LogLevelToColorMap[LogLevel.Debug] = ConsoleColor.Yellow;
+            // Replace warning value from appsettings.json of "Red"
+            configuration.LogLevelToColorMap[LogLevel.Error] = ConsoleColor.DarkRed;
+        });
+
+        logging.SetMinimumLevel(loglevel);
+    })
     .AddSingleton<ITimerService, TimerService>()
     .AddSingleton<DDNSService>()
     .BuildServiceProvider();
