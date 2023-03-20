@@ -2,9 +2,9 @@ name: Docker Image CI
 
 on:
   push:
-    branches: [ "master", "dev" ]
+    branches: [ "dev" ]
   pull_request:
-    branches: [ "master", "dev" ]
+    branches: [ "dev" ]
 
 jobs:
 
@@ -24,7 +24,7 @@ jobs:
       with:
         install: true
     
-    - name: Docker Build and Tag
+    - name: Docker Build and Tag Prod
       run: docker build --load -t saile2204/ionos_ddns_updater:latest-${{ steps.extract_branch.outputs.branch }} -t saile2204/ionos_ddns_updater:${{ steps.extract_branch.outputs.branch }}-$GITHUB_SHA .
     
     - name: Docker Build and Tagd
