@@ -16,7 +16,7 @@ namespace DDNSUpdater.Services;
 
 public class DDNSService : IDDNSService
 {
-    private List<string> UpdateURLs { get; set; }
+    private List<string>? UpdateURLs { get; set; }
     public List<Domain> Domains { get; set; }
     
     private readonly ILogger<DDNSService> _logger;
@@ -45,7 +45,11 @@ public class DDNSService : IDDNSService
     public async void Start()
     {
         _logger.LogInformation("Fetching UpdateURLs");
-        UpdateURLs = await GetUpdateURLs();
+        while (UpdateURLs == null || UpdateURLs.Count == 0 )
+        {
+            UpdateURLs = await GetUpdateURLs();
+        }
+        
         _logger.LogInformation($"Fetched {UpdateURLs.Count} UpdateURLs");
     }
 

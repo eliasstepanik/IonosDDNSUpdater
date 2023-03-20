@@ -8,6 +8,6 @@ public sealed class SpecterConsoleLoggerConfiguration
 
     public Dictionary<LogLevel, ConsoleColor> LogLevelToColorMap { get; set; } = new()
     {
-        [LogLevel.Information] = ConsoleColor.Green
+        /*[LogLevel.Information] = ConsoleColor.Green*/
     };
 }
