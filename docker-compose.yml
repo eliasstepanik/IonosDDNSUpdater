@@ -7,5 +7,6 @@ services:
     tty: true
     stdin_open: true
     environment:
-      API_Key: ""
-      DOMAINS: "subdomain.domain.de,domain.de"
+      LogLevel: "Debug"
+      DOMAIN-0: "sub.domain.de;key"
+      DOMAIN-1: "sub.domain.de;key"
