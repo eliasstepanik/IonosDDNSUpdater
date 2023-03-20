@@ -63,14 +63,14 @@ public class DDNSService : IDDNSService
     {
         foreach (var UpdateURL in UpdateURLs)
         {
-            var client = new RestClient(UpdateURL);
-            var request = new RestRequest("",Method.Get);
-            request.AddHeader("Cookie", "0b04270753322c986927738ac2b6c0d8=ea099cbd8a6109c688f9831d6bbfa7a1; 5b66c83e4535f5f6bef8295496cfe559=e85228fccae97f107478bf9ef664e4eb; DPX=v1:ghOJrOzFTj:htgOaKFW:63d3bf8f:de");
-            var body = @"";
-            request.AddParameter("text/plain", body,  ParameterType.RequestBody);
-
             try
             {
+                var client = new RestClient(UpdateURL);
+                var request = new RestRequest("",Method.Get);
+                request.AddHeader("Cookie", "0b04270753322c986927738ac2b6c0d8=ea099cbd8a6109c688f9831d6bbfa7a1; 5b66c83e4535f5f6bef8295496cfe559=e85228fccae97f107478bf9ef664e4eb; DPX=v1:ghOJrOzFTj:htgOaKFW:63d3bf8f:de");
+                var body = @"";
+                request.AddParameter("text/plain", body,  ParameterType.RequestBody);
+                
                 var response = await client.ExecuteAsync(request);
                 _logger.LogInformation("Requesting Update on Ionos.");
             }
