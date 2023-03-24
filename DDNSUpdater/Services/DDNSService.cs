@@ -7,7 +7,6 @@ using System.Net;
 using System.Net.Mime;
 using System.Security.Authentication;
 using System.Threading.Tasks;
-using DDNSUpdater.Abstracts;
 using DDNSUpdater.APIs.Ionos;
 using DDNSUpdater.APIs.Ionos.ApiClient;
 using DDNSUpdater.APIs.Ionos.ApiClient.Models;
@@ -30,7 +29,7 @@ using Method = RestSharp.Method;
 
 namespace DDNSUpdater.Services;
 
-public class DDNSService : ADDNSService
+public class DDNSService : IDDNSService
 {
     private List<string>? UpdateURLs { get; set; }
     public List<Domain> Domains { get; set; }
@@ -75,7 +74,7 @@ public class DDNSService : ADDNSService
         _logger.LogInformation($"Fetched {UpdateURLs.Count} UpdateURLs");
     }
 
-    public override async void Update()
+    public async void Update()
     {
         if(UpdateURLs != null && UpdateURLs.Count != 0)
         
