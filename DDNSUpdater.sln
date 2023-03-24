@@ -2,6 +2,8 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DDNSUpdater", "DDNSUpdater\DDNSUpdater.csproj", "{EDEDF642-4CFC-4EEB-A8F2-3872DBEC63E3}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{2F1B5788-B2D6-43B9-A523-5D308F33279C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,5 +14,9 @@ Global
 		{EDEDF642-4CFC-4EEB-A8F2-3872DBEC63E3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EDEDF642-4CFC-4EEB-A8F2-3872DBEC63E3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EDEDF642-4CFC-4EEB-A8F2-3872DBEC63E3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2F1B5788-B2D6-43B9-A523-5D308F33279C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2F1B5788-B2D6-43B9-A523-5D308F33279C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2F1B5788-B2D6-43B9-A523-5D308F33279C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2F1B5788-B2D6-43B9-A523-5D308F33279C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

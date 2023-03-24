@@ -1,0 +1,1200 @@
+﻿openapi: 3.0.2
+info:
+  title: 'DNS API'
+  version: "1.0.2"
+  description: |
+    # Working with the API
+    Every endpoint uses the `X-API-Key` header for authorization, to obtain the key please see the [Official Documentation](/docs/getstarted).
+
+    Please note that any zone or record updates might conflict with active services. In such cases, the DNS records belonging to the conflicting services will be deactivated.
+
+    # Support
+    Support questions may be posted in English: <a href='/docs/getstarted#support'>API Support</a>.
+
+    Please note that we offer support in the business Hours Mo-Fri 9:00-17:00 EET.
+    <h2>
+    <details>
+      <summary>Release notes</summary>
+      <ul>
+        <li>Version 1.0.0 Exposed CRUD operations for customer zone.</li>
+        <li>Version 1.0.1 Added response body for UPDATE and CREATE record operations.</li>
+        <li>Version 1.0.2 Added new supported record types.</li>
+      </ul>
+    </details>
+    </h2>
+    
+    # Contact
+     <a href='/docs/getstarted#support'>API Support - Website</a>
+servers:
+  - url: https://api.hosting.ionos.com/dns
+    description: Production server
+
+# Basic authentication
+components:
+  schemas:
+    recordTypes:
+      type: string
+      description: Holds supported dns record types.
+      enum: [A, AAAA, CNAME, MX, NS, SOA, SRV, TXT, CAA, TLSA, SMIMEA, SSHFP, DS, HTTPS, SVCB,
+             CERT, URI, RP, LOC, OPENPGPKEY]
+    zoneTypes:
+      type: string
+      description: Represents the possible zone types.
+      enum: [NATIVE, SLAVE]
+    error:
+      type: object
+      properties:
+        code:
+          type: string
+          description: The error code.
+        message:
+          type: string
+          description: The error message.
+    record:
+      type: object
+      properties:
+        name:
+          type: string
+        type:
+          $ref: "#/components/schemas/recordTypes"
+        content:
+          type: string
+        ttl:
+          type: integer
+          description: Time to live for the record, recommended 3600.
+        prio:
+          type: integer
+        disabled:
+          type: boolean
+          default: false
+          description: When is true, the record is not visible for lookup.
+    record-response:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        rootName:
+          type: string
+          description: Root zone name.
+        type:
+          $ref: "#/components/schemas/recordTypes"
+        content:
+          type: string
+        changeDate:
+          type: string
+          description: The date of the last change formatted as yyyy-MM-dd'T'HH:mm:ss.SSS'Z'
+        ttl:
+          type: integer
+          description: Time to live for the record, recommended 3600.
+        prio:
+          type: integer
+        disabled:
+          type: boolean
+          default: false
+          description: When is true, the record is not visible for lookup.
+    record-update:
+      type: object
+      properties:
+        disabled:
+          type: boolean
+          default: false
+          description: When is true, the record is not visible for lookup.
+        content:
+          type: string
+        ttl:
+          type: integer
+          description: Time to live for the record, recommended 3600.
+        prio:
+          type: integer
+    errors:
+      type: array
+      items:
+        properties:
+          invalidFields:
+            type: array
+            items:
+              type: string
+          requiredFields:
+            type: array
+            items:
+              type: string
+          invalid:
+            type: array
+            items:
+              type: string
+          inputRecord:
+            $ref: "#/components/schemas/record"
+          errorRecord:
+            $ref: "#/components/schemas/record"
+    zone:
+      type: object
+      properties:
+        name:
+          type: string
+          description: The zone name.
+        id:
+          type: string
+          description: The zone id.
+        type:
+          $ref: "#/components/schemas/zoneTypes"
+    customer-zone:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The zone id.
+        name:
+          type: string
+          description: The zone name
+        type:
+          $ref: "#/components/schemas/zoneTypes"
+        records:
+          type: array
+          items:
+            $ref: "#/components/schemas/record-response"
+    dyn-dns-request:
+      type: object
+      properties:
+        domains:
+          type: array
+          items:
+            type: string
+            description: The zone name.
+        description:
+          type: string
+          description: Dynamic Dns description.
+      required:
+        - domains
+    dynamic-dns:
+      type: object
+      properties:
+        bulkId:
+          type: string
+          description: DynDns configuration identifier.
+        updateUrl:
+          type: string
+          description: "Use the url with GET to update the ips of (sub)domains. Query parameters: ipv4, ipv6."
+        domains:
+          type: array
+          items:
+            type: string
+            description: The zone name.
+        description:
+          type: string
+          description: Dynamic Dns description.
+  examples:
+    record:
+      value:
+        {
+          "name": "example-zone.de",
+          "type": "A",
+          "content": "1.2.3.4",
+          "ttl": 3600,
+          "prio": 10,
+          "disabled": false
+        }
+    record-response:
+      value:
+        {
+          "id": "22af3414-abbe-9e11-5df5-66fbe8e334b4",
+          "name": "example-zone.de",
+          "rootName": "example-zone.de",
+          "type": "A",
+          "content": "1.2.3.4",
+          "changeDate": "2019-12-09T13:04:25.772Z",
+          "ttl": 3600,
+          "prio": 0,
+          "disabled": false
+        }
+    record-update:
+      value:
+        {
+          "disabled": false,
+          "content": "1.1.1.1",
+          "ttl": 3600,
+          "prio":0
+        }
+    record-updated:
+      value:
+        {
+          "id": "22af3414-abbe-9e11-5df5-66fbe8e334b4",
+          "name": "example-zone.de",
+          "rootName": "example-zone.de",
+          "type": "A",
+          "content": "1.1.1.1",
+          "changeDate": "2022-23-03T13:04:25.772Z",
+          "ttl": 3600,
+          "prio": 0,
+          "disabled": false
+        }
+    record-not-normalized:
+      value:
+        {
+          "name": "example-zone.de",
+          "type": "caa",
+          "content": "0 issuewild \"“example.org\"",
+          "ttl": 3600,
+          "disabled": false
+        }
+    record-normalized:
+      value:
+        {
+          "name": "example-zone.de",
+          "type": "CAA",
+          "content": "0 issuewild \"example.org\"",
+          "ttl": 3600,
+          "disabled": false
+        }
+    unauthorized-error:
+      value: [
+        {
+          "code": "UNAUTHORIZED",
+          "message": "The customer is not authorized to do this operation."
+        }
+      ]
+    bad-request-invalid-domain-name-error:
+      value:
+        - code: INVALID_DOMAIN_NAME
+          message: Domain is missing/invalid or its tld is not supported yet.
+    bad-request-invalid-data-error:
+      value: [
+        {
+          "code": "INVALID_DATA",
+          "message": "The request body is invalid or not supported by the endpoint."
+        }
+      ]
+    bad-request-invalid-record-error:
+      value: [
+        {
+          "code": "INVALID_RECORD",
+          "message": "Record is invalid.",
+          "parameters": {
+            "requiredFields": [
+              "type"
+            ]
+          }
+        }
+      ]
+    record-not-found-error:
+      value: [
+        {
+          "code": "RECORD_NOT_FOUND",
+          "message": "Record does not exist."
+        }
+      ]
+    dyndns-not-found-error:
+      value:
+        - code: DYN_DNS_NOT_FOUND
+          message: Dynamic dns not found.
+    forbidden-error:
+      value:
+        - code: FORBIDDEN_REQUEST
+          message: Request not allowed.
+    internal-server-error:
+      value: [
+        {
+          "code": "INTERNAL_SERVER_ERROR"
+        }
+      ]
+    bad-request-error:
+      value: [
+        {
+          "code": "INVALID_RECORD",
+          "message": "Record is invalid.",
+          "parameters": {
+            "errorRecord": {
+              "name": "example-zone.de",
+              "disabled": false,
+              "rootName": "example-zone.de",
+              "content": "1.2.3.4",
+              "ttl": 3600,
+              "prio": 0,
+            },
+            "requiredFields": [
+              "type"
+            ]
+          }
+        }
+      ]
+    zones:
+      value: [
+        {
+          "id": "11af3414-ebba-11e9-8df5-66fbe8a334b4",
+          "name": "test.com",
+          "type": "NATIVE"
+        }
+      ]
+    customer-zone:
+      value: {
+        "id": "11af3414-ebba-11e9-8df5-66fbe8a334b4",
+        "name": "example-zone.de",
+        "type": "NATIVE",
+        "records": [
+          {
+            "id": "22af3414-abbe-9e11-5df5-66fbe8e334b4",
+            "name": "example-zone.de",
+            "rootName": "example-zone.de",
+            "type": "A",
+            "content": "1.1.1.1",
+            "changeDate": "2019-12-09T13:04:25.772Z",
+            "ttl": 3600,
+            "prio": 0,
+            "disabled": false
+          }
+        ]
+      }
+    record-list:
+      value: [
+        {
+          "name": "example-zone.de",
+          "type": "A",
+          "content": "1.2.3.4",
+          "ttl": 3600,
+          "prio": 0,
+          "disabled": false
+        }
+      ]
+    record-list-created:
+      value: [
+        {
+          "id": "22af3414-abbe-9e11-5df5-66fbe8e334b4",
+          "name": "example-zone.de",
+          "rootName": "example-zone.de",
+          "type": "A",
+          "content": "1.2.3.4",
+          "changeDate": "2022-23-03T13:04:25.772Z",
+          "ttl": 3600,
+          "prio": 0,
+          "disabled": false
+        }
+      ]
+    dyn-dns-request:
+      value:
+        domains: ["example-zone.de", "www.example-zone.de"]
+        description: My DynamicDns
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+
+security:
+  - ApiKeyAuth: []
+
+paths:
+  /v1/zones:
+    get:
+      operationId: getZones
+      tags:
+        - Zones
+      description: Returns list of customer zones.
+      responses:
+        '200':
+          description: Succesful response.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {
+                  $ref: "#/components/schemas/zone"
+                }
+              examples:
+                Zones:
+                  $ref: "#/components/examples/zones"
+        '401':
+          description: Unauthorized request.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {
+                  $ref: "#/components/schemas/error"
+                }
+              examples:
+                Unauthorized:
+                  $ref: "#/components/examples/unauthorized-error"
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {
+                  $ref: "#/components/schemas/error"
+                }
+              examples:
+                Unauthorized:
+                  $ref: "#/components/examples/internal-server-error"
+  /v1/zones/{zoneId}:
+    get:
+      operationId: getZone
+      tags:
+        - Zones
+      description: Returns a customer zone.
+      parameters:
+        - in: header
+          name:  X-API-Key
+          schema:
+            type: string
+          required: true
+        - in: path
+          name: zoneId
+          schema:
+            type: string
+          required: true
+          description: The id of the customer zone.
+        - in: query
+          name: suffix
+          schema:
+            type: string
+          required: false
+          description: The FQDN used to filter all the record names that end with it.
+          example: subhost.example.com
+        - in: query
+          name: recordName
+          schema:
+            type: string
+          required: false
+          description: The record names that should be included (same as name field of Record)
+          example: www.subdomain.example.com
+        - in: query
+          name: recordType
+          schema:
+            type: string
+          required: false
+          description: A comma-separated list of record types that should be included
+          example: A,AAAA
+      responses:
+        '200':
+          description: Succesful response.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/customer-zone"
+              examples:
+                'Customer zone':
+                  $ref: "#/components/examples/customer-zone"
+        '401':
+          description: Unauthorized request.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {
+                  $ref: "#/components/schemas/error"
+                }
+              examples:
+                Unauthorized:
+                  $ref: "#/components/examples/unauthorized-error"
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {
+                  $ref: "#/components/schemas/error"
+                }
+              examples:
+                Unauthorized:
+                  $ref: "#/components/examples/internal-server-error"
+    patch:
+      operationId: patchZone
+      tags:
+        - Zones
+      description: Replaces all records of the same name and type with the ones provided.
+      parameters:
+        - in: path
+          name: zoneId
+          schema:
+            type: string
+          required: true
+          description: The id of the customer zone.
+        - in: header
+          name:  X-API-Key
+          schema:
+            type: string
+          required: true
+      requestBody:
+        description: records
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: "#/components/schemas/record"
+            examples:
+              'Record list':
+                $ref: "#/components/examples/record-list"
+      responses:
+        '200':
+          description: Succesful response.
+        '400':
+          description: Bad request.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {
+                  $ref: "#/components/schemas/errors"
+                }
+              examples:
+                'Bad request':
+                  $ref: "#/components/examples/bad-request-error"
+        '401':
+          description: Unauthorized request.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {
+                  $ref: "#/components/schemas/error"
+                }
+              examples:
+                Unauthorized:
+                  $ref: "#/components/examples/unauthorized-error"
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {
+                  $ref: "#/components/schemas/error"
+                }
+              examples:
+                Unauthorized:
+                  $ref: "#/components/examples/internal-server-error"
+    put:
+      operationId: updateZone
+      tags:
+        - Zones
+      description: Replaces all records in the zone with the ones provided
+      parameters:
+        - in: path
+          name: zoneId
+          schema:
+            type: string
+          required: true
+          description: The id of the customer zone.
+        - in: header
+          name:  X-API-Key
+          schema:
+            type: string
+          required: true
+      requestBody:
+        description: records
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: "#/components/schemas/record"
+            examples:
+              'Record list':
+                $ref: "#/components/examples/record-list"
+      responses:
+        '200':
+          description: Succesful response.
+        '400':
+          description: Bad request.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {
+                  $ref: "#/components/schemas/errors"
+                }
+              examples:
+                Bad request:
+                  $ref: "#/components/examples/bad-request-error"
+        '401':
+          description: Unauthorized request.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {
+                  $ref: "#/components/schemas/error"
+                }
+              examples:
+                Unauthorized:
+                  $ref: "#/components/examples/unauthorized-error"
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {
+                  $ref: "#/components/schemas/error"
+                }
+              examples:
+                Unauthorized:
+                  $ref: "#/components/examples/internal-server-error"
+  "/v1/zones/{zoneId}/records":
+    post:
+      operationId: createRecords
+      tags:
+        - Records
+      description: Creates records for a customer zone.
+      parameters:
+        - in: path
+          name: zoneId
+          schema:
+            type: string
+          required: true
+          description: The id of the customer zone.
+        - in: header
+          name:  X-API-Key
+          schema:
+            type: string
+          required: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: "#/components/schemas/record"
+            examples:
+              'Record list':
+                $ref: "#/components/examples/record-list"
+      responses:
+        '201':
+          description: Records created.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/record-response"
+              examples:
+                'Successful response':
+                  $ref: "#/components/examples/record-list-created"
+        '400':
+          description: Bad request.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {
+                  $ref: "#/components/schemas/error"
+                }
+              examples:
+                Bad request:
+                  $ref: "#/components/examples/bad-request-error"
+                Invalid Domain Name:
+                  $ref: "#/components/examples/bad-request-invalid-domain-name-error"
+        '401':
+          description: Unauthorized request.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {
+                  $ref: "#/components/schemas/error"
+                }
+              examples:
+                Unauthorized:
+                  $ref: "#/components/examples/unauthorized-error"
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {
+                  $ref: "#/components/schemas/error"
+                }
+              examples:
+                Internal Server Error:
+                  $ref: "#/components/examples/internal-server-error"
+  /v1/zones/{zoneId}/records/{recordId}:
+    get:
+      operationId: getRecord
+      tags:
+        - Records
+      description:  Returns the record from the customer zone with the mentioned id.
+      parameters:
+        - in: path
+          name: zoneId
+          schema:
+            type: string
+          required: true
+          description: The id of the customer zone.
+        - in: path
+          name: recordId
+          schema:
+            type: string
+          required: true
+          description: The id of the record.
+        - in: header
+          name:  X-API-Key
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Succesful response.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/record-response"
+              examples:
+                'Record':
+                  $ref: "#/components/examples/record-response"
+        '404':
+          description: Record not found.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {
+                  $ref: "#/components/schemas/error"
+                }
+              examples:
+                Unauthorized:
+                  $ref: "#/components/examples/record-not-found-error"
+        '401':
+          description: Unauthorized request.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {
+                  $ref: "#/components/schemas/error"
+                }
+              examples:
+                Unauthorized:
+                  $ref: "#/components/examples/unauthorized-error"
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {
+                  $ref: "#/components/schemas/error"
+                }
+              examples:
+                Unauthorized:
+                  $ref: "#/components/examples/internal-server-error"
+    delete:
+      operationId: deleteRecord
+      tags:
+        - Records
+      description: Delete a record from the customer zone.
+      parameters:
+        - in: path
+          name: zoneId
+          schema:
+            type: string
+          required: true
+          description: The id of the customer zone.
+        - in: path
+          name: recordId
+          schema:
+            type: string
+          required: true
+          description: The id of the record.
+        - in: header
+          name:  X-API-Key
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Succesful response.
+        '404':
+          description: Record not found.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {
+                  $ref: "#/components/schemas/error"
+                }
+              examples:
+                Unauthorized:
+                  $ref: "#/components/examples/record-not-found-error"
+        '401':
+          description: Unauthorized request.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {
+                  $ref: "#/components/schemas/error"
+                }
+              examples:
+                Unauthorized:
+                  $ref: "#/components/examples/unauthorized-error"
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {
+                  $ref: "#/components/schemas/error"
+                }
+              examples:
+                Unauthorized:
+                  $ref: "#/components/examples/internal-server-error"
+    put:
+      operationId: updateRecord
+      tags:
+        - Records
+      description: Update a record from the customer zone.
+      parameters:
+        - in: path
+          name: zoneId
+          schema:
+            type: string
+          required: true
+          description: The id of the customer zone.
+        - in: path
+          name: recordId
+          schema:
+            type: string
+          required: true
+          description: The id of the record.
+        - in: header
+          name:  X-API-Key
+          schema:
+            type: string
+          required: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/record-update"
+            examples:
+              'Record':
+                $ref: "#/components/examples/record-update"
+      responses:
+        '200':
+          description: Record updated.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/record-response"
+              examples:
+                'Successful response':
+                  $ref: "#/components/examples/record-updated"
+        '400':
+          description: Bad request.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {
+                  $ref: "#/components/schemas/errors"
+                }
+              examples:
+                Bad request:
+                  $ref: "#/components/examples/bad-request-error"
+        '401':
+          description: Unauthorized request.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {
+                  $ref: "#/components/schemas/error"
+                }
+              examples:
+                Unauthorized:
+                  $ref: "#/components/examples/unauthorized-error"
+        '404':
+          description: Record not found.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {
+                  $ref: "#/components/schemas/error"
+                }
+              examples:
+                Unauthorized:
+                  $ref: "#/components/examples/record-not-found-error"
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {
+                  $ref: "#/components/schemas/error"
+                }
+              examples:
+                Internal Server Error:
+                  $ref: "#/components/examples/internal-server-error"
+  "/v1/dyndns":
+    post:
+      operationId: activateDynDns
+      tags:
+        - Dynamic DNS
+      description: |
+        Activate Dynamic Dns for a bundle of (sub)domains. The url from response will be used to update the ips of the (sub)domains.
+        The following quota applies: 2 requests per minute per IP address.
+      parameters:
+        - in: header
+          name:  X-API-Key
+          schema:
+            type: string
+          required: true
+      requestBody:
+        description: Dynamic Dns configuration.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/dyn-dns-request"
+            examples:
+              'Enable Dynamic DNS':
+                $ref: "#/components/examples/dyn-dns-request"
+      responses:
+        '200':
+          description: Succesful response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/dynamic-dns'
+              example:
+                bulkId: 22af3414-abbe-9e11-5df5-66fbe8e334b4
+                updateUrl: "https://ipv4.api.hosting.ionos.com/dns/v1/dyndns?q=dGVzdC50ZXN0"
+                domains: [
+                  "example-zone.de",
+                  "www.example-zone.de"
+                ]
+                description: "My DynamicDns"
+        '400':
+          description: Bad request.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {
+                  $ref: "#/components/schemas/error"
+                }
+              examples:
+                Invalid Request:
+                  $ref: "#/components/examples/bad-request-invalid-data-error"
+                Invalid Domain Name:
+                  $ref: "#/components/examples/bad-request-invalid-domain-name-error"
+        '401':
+          description: Unauthorized request.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {
+                  $ref: "#/components/schemas/error"
+                }
+              examples:
+                Unauthorized:
+                  $ref: "#/components/examples/unauthorized-error"
+        '429':
+          description: Rate limit excedeed.
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {
+                  $ref: "#/components/schemas/error"
+                }
+              examples:
+                Internal Server Error:
+                  $ref: "#/components/examples/internal-server-error"
+    delete:
+      operationId: disableDynDns
+      tags:
+        - Dynamic DNS
+      description: |
+        Disable Dynamic Dns.
+        The following quota applies: 2 requests per minute per IP address.
+      parameters:
+        - in: header
+          name:  X-API-Key
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Succesful response.
+        '401':
+          description: Unauthorized request.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {
+                  $ref: "#/components/schemas/error"
+                }
+              examples:
+                Unauthorized:
+                  $ref: "#/components/examples/unauthorized-error"
+        '429':
+          description: Rate limit excedeed.
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {
+                  $ref: "#/components/schemas/error"
+                }
+              examples:
+                Internal Server Error:
+                  $ref: "#/components/examples/internal-server-error"
+  "/v1/dyndns/{bulkId}":
+    parameters:
+      - in: path
+        name: bulkId
+        schema:
+          type: string
+        required: true
+        description: Dynamic Dns configuration identifier.
+      - in: header
+        name:  X-API-Key
+        schema:
+          type: string
+        required: true
+    put:
+      operationId: updateDynDns
+      tags:
+        - Dynamic DNS
+      description: |
+        Update Dynamic Dns for bulk id.
+        The following quota applies: 2 requests per minute per IP address.
+      requestBody:
+        description: Dynamic Dns configuration.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/dyn-dns-request"
+            examples:
+              'Update Dynamic DNS':
+                $ref: "#/components/examples/dyn-dns-request"
+      responses:
+        '200':
+          description: Succesful response.
+        '400':
+          description: Bad request.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {
+                  $ref: "#/components/schemas/error"
+                }
+              examples:
+                Invalid Request:
+                  $ref: "#/components/examples/bad-request-invalid-data-error"
+                Invalid Domain Name:
+                  $ref: "#/components/examples/bad-request-invalid-domain-name-error"
+        '401':
+          description: Unauthorized request.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {
+                  $ref: "#/components/schemas/error"
+                }
+              examples:
+                Unauthorized:
+                  $ref: "#/components/examples/unauthorized-error"
+        '403':
+          description: Forbidden request.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {
+                  $ref: "#/components/schemas/error"
+                }
+              examples:
+                Forbidden:
+                  $ref: "#/components/examples/forbidden-error"
+        '404':
+          description: DynDns not found error.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {
+                  $ref: "#/components/schemas/error"
+                }
+              examples:
+                Not Found:
+                  $ref: "#/components/examples/dyndns-not-found-error"
+        '429':
+          description: Rate limit excedeed.
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {
+                  $ref: "#/components/schemas/error"
+                }
+              examples:
+                Unauthorized:
+                  $ref: "#/components/examples/internal-server-error"
+    delete:
+      operationId: deleteDynDns
+      tags:
+        - Dynamic DNS
+      description: |
+        Disable Dynamic Dns for bulk id.
+        The following quota applies: 2 requests per minute per IP address.
+      parameters:
+        - in: header
+          name:  X-API-Key
+          schema:
+            type: string
+            format: uuid
+          required: true
+      responses:
+        '200':
+          description: Succesful response.
+        '401':
+          description: Unauthorized request.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {
+                  $ref: "#/components/schemas/error"
+                }
+              examples:
+                Unauthorized:
+                  $ref: "#/components/examples/unauthorized-error"
+        '429':
+          description: Rate limit excedeed.
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {
+                  $ref: "#/components/schemas/error"
+                }
+              examples:
+                Internal Server Error:
+                  $ref: "#/components/examples/internal-server-error"

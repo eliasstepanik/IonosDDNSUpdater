@@ -12,10 +12,16 @@
       <PackageReference Include="Microsoft.Extensions.Configuration" Version="7.0.0" />
       <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="7.0.0" />
       <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="7.0.0" />
+      <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="7.0.0" />
       <PackageReference Include="Microsoft.Extensions.Logging" Version="7.0.0" />
       <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="7.0.0" />
-      <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
-      <PackageReference Include="RestSharp" Version="108.0.3" />
+      <PackageReference Include="Microsoft.Kiota.Abstractions" Version="1.1.0" />
+      <PackageReference Include="Microsoft.Kiota.Http.HttpClientLibrary" Version="1.0.1" />
+      <PackageReference Include="Microsoft.Kiota.Serialization.Form" Version="1.0.1" />
+      <PackageReference Include="Microsoft.Kiota.Serialization.Json" Version="1.0.3" />
+      <PackageReference Include="Microsoft.Kiota.Serialization.Text" Version="1.0.1" />
+      <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+      <PackageReference Include="RestSharp" Version="109.0.1" />
       <PackageReference Include="Spectre.Console" Version="0.46.0" />
     </ItemGroup>
 

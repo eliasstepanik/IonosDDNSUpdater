@@ -1,0 +1,29 @@
+{
+  "descriptionHash": "9A16B89F524811904DA32D7B012B195937F8B243B3A466F6D6D8CCEAA2513B867643FB85327DB2AFFE886448B547E97877797F36A997FD7DD4C87331BDCDEDCC",
+  "descriptionLocation": "C:\\Users\\elias\\RiderProjects\\IonosDynamicDNSUpdater\\DDNSUpdater\\APIs\\Ionos\\dns.yml",
+  "lockFileVersion": "1.0.0",
+  "kiotaVersion": "1.0.1",
+  "clientClassName": "IonosAPIClient",
+  "clientNamespaceName": "DDNSUpdater.APIs.Ionos.ApiClient",
+  "language": "CSharp",
+  "usesBackingStore": false,
+  "includeAdditionalData": true,
+  "serializers": [
+    "Microsoft.Kiota.Serialization.Json.JsonSerializationWriterFactory",
+    "Microsoft.Kiota.Serialization.Text.TextSerializationWriterFactory",
+    "Microsoft.Kiota.Serialization.Form.FormSerializationWriterFactory"
+  ],
+  "deserializers": [
+    "Microsoft.Kiota.Serialization.Json.JsonParseNodeFactory",
+    "Microsoft.Kiota.Serialization.Text.TextParseNodeFactory",
+    "Microsoft.Kiota.Serialization.Form.FormParseNodeFactory"
+  ],
+  "structuredMimeTypes": [
+    "application/json",
+    "text/plain",
+    "application/x-www-form-urlencoded"
+  ],
+  "includePatterns": [],
+  "excludePatterns": [],
+  "disabledValidationRules": []
+}

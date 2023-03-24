@@ -5,27 +5,38 @@ using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Net.Mime;
+using System.Security.Authentication;
 using System.Threading.Tasks;
+using DDNSUpdater.Abstracts;
+using DDNSUpdater.APIs.Ionos;
+using DDNSUpdater.APIs.Ionos.ApiClient;
+using DDNSUpdater.APIs.Ionos.ApiClient.Models;
 using DDNSUpdater.Interfaces;
 using DDNSUpdater.Logging;
 using DDNSUpdater.Models;
 using DDNSUpdater.Models.Requests;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.Kiota.Abstractions;
+using Microsoft.Kiota.Abstractions.Authentication;
+using Microsoft.Kiota.Http.HttpClientLibrary;
 using Newtonsoft.Json;
 using RestSharp;
 using Spectre.Console;
 using Console = Spectre.Console.AnsiConsole;
-using ContentType = RestSharp.Serializers.ContentType;
+using ContentType = RestSharp.ContentType;
+using DynamicDns = DDNSUpdater.Models.Requests.DynamicDns;
+using Method = RestSharp.Method;
 
 namespace DDNSUpdater.Services;
 
-public class DDNSService : IDDNSService
+public class DDNSService : ADDNSService
 {
     private List<string>? UpdateURLs { get; set; }
     public List<Domain> Domains { get; set; }
     
     private readonly ILogger<DDNSService> _logger;
+    private IonosAPIClient _client;
     
     public DDNSService(ILogger<DDNSService> logger,IConfiguration configuration)
     {
@@ -44,8 +55,12 @@ public class DDNSService : IDDNSService
                 Domains.Add(new Domain(env[0], env[1]));
             }
         }
-
         
+        var authProvider  = new AnonymousAuthenticationProvider();
+        var requestAdapter = new HttpClientRequestAdapter(authProvider);
+        _client = new IonosAPIClient(requestAdapter);
+
+
     }
     
     public async void Start()
@@ -60,8 +75,10 @@ public class DDNSService : IDDNSService
         _logger.LogInformation($"Fetched {UpdateURLs.Count} UpdateURLs");
     }
 
-    public async void Update()
+    public override async void Update()
     {
+        if(UpdateURLs != null && UpdateURLs.Count != 0)
+        
         foreach (var UpdateURL in UpdateURLs)
         {
             try
@@ -73,9 +90,10 @@ public class DDNSService : IDDNSService
                 request.AddParameter("text/plain", body,  ParameterType.RequestBody);
                 
                 var response = await client.ExecuteAsync(request);
+                
                 _logger.LogInformation("Requesting Update on Ionos.");
             }
-            catch (Exception e)
+            catch (ApiException e)
             {
                 _logger.LogError(e.Message);
                 throw;
@@ -117,43 +135,37 @@ public class DDNSService : IDDNSService
         }
         
 
-        foreach (var domainList in domainDict)
+        foreach (var (key, value) in domainDict)
         {
             try
             {
-                var dyndns = new DynamicDns()
+                var request = new DynDnsRequest();
+                request.Domains = value;
+                request.Description = "My DynamicDns";
+                
+                var reply = await _client.V1.Dyndns.PostAsync(request, configuration =>
                 {
-                    Domains = domainList.Value,
-                    Description = "My DynamicDns"
-                };
-                var content = JsonConvert.SerializeObject(dyndns);
-                var client = new RestClient("https://api.hosting.ionos.com/dns/v1");
-                var request = new RestRequest("/dyndns", Method.Post);
-        
-        
-                request.AddHeader("X-API-Key", domainList.Key);
-        
-                request.AddStringBody(content, ContentType.Json);
-        
-                var response =  client.ExecutePost<DynamicDnsResponse>(request);
-
-                if (response.StatusCode == HttpStatusCode.Forbidden)
-                {
-                    _logger.LogError($"Could not Fetch UpdateURL for {domainList.Key}");
-                    Environment.Exit(7);
-                }
+                    configuration.Headers = new RequestHeaders()
+                    {
+                        { "X-API-Key", key }
+                    };
+                });
+                updateURLs.Add(reply.UpdateUrl);
 
 
-                _logger.LogDebug(response.Data.UpdateUrl);
-                updateURLs.Add(response.Data.UpdateUrl);
             }
-            catch (Exception error)
+            catch (ApiException error)
             {
-                _logger.LogError(error.Message);
+                string message = error.Message;
+                _logger.LogError(message);
                 return null;
             }
+            
+            
         }
 
         return updateURLs;
     }
+    
+    
 }
