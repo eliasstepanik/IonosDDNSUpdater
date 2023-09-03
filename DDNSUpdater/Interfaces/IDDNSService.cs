@@ -2,7 +2,7 @@
 
 public interface IDDNSService
 {
-    public void Start();
-    public void Update();
+    public void Init();
+    public void Update(bool changed);
     public void SetUpdateURL();
 }

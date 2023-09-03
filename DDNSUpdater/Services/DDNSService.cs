@@ -8,6 +8,7 @@ using DDNSUpdater.Interfaces;
 using DDNSUpdater.Logging;
 using DDNSUpdater.Models;
 using DDNSUpdater.Models.Requests;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -21,46 +22,46 @@ namespace DDNSUpdater.Services;
 public class DDNSService : IDDNSService
 {
     private List<string>? UpdateURLs { get; set; }
-    public List<Domain> Domains { get; set; }
     
     private readonly ILogger<DDNSService> _logger;
-    
-    public DDNSService(ILogger<DDNSService> logger,IConfiguration configuration)
+    private readonly DataContext _dataContext;
+
+    public DDNSService(ILogger<DDNSService> logger,IConfiguration configuration, DataContext dataContext)
     {
         _logger = logger;
-        Domains = new List<Domain>();
-        
-        foreach (DictionaryEntry de in Environment.GetEnvironmentVariables())
-        {
-
-            if (de.Key.ToString().ToLower().Contains("domain-"))
-            {
-                // domain;key
-                var env = de.Value.ToString().Split(";").ToList();
-
-
-                Domains.Add(new Domain(env[0], env[1]));
-            }
-        }
-
-        
+        _dataContext = dataContext;
     }
     
-    public async void Start()
+    
+    public async void Init()
     {
+        int count = 0;
         _logger.LogInformation("Fetching UpdateURLs");
+        var domains = await _dataContext.Domains.ToListAsync();
+        if (domains.Count == 0)
+        {
+            return;
+        }
         UpdateURLs = await GetUpdateURLs();
-        while (UpdateURLs == null || UpdateURLs.Count == 0 )
+        while (UpdateURLs == null || UpdateURLs.Count == 0  || count > 50)
         {
             _logger.LogInformation($"Fetching UpdateURLs again.");
             UpdateURLs = await GetUpdateURLs();
+            count++;
         }
         
         _logger.LogInformation($"Fetched {UpdateURLs.Count} UpdateURLs");
     }
 
-    public async void Update()
+    public async void Update(bool changed)
     {
+        if (changed)
+        {
+            Init();
+        }
+        
+        if(UpdateURLs.Count == 0) return;
+        
         foreach (var UpdateURL in UpdateURLs)
         {
             var client = new RestClient(UpdateURL);
@@ -94,7 +95,7 @@ public class DDNSService : IDDNSService
         
         Dictionary<string, List<string>> domainDict = new Dictionary<string, List<string>>();
         Dictionary<string,Table> tables = new Dictionary<string,Table>();
-        foreach (var domain in Domains)
+        foreach (var domain in await _dataContext.Domains.ToListAsync())
         {
             
             if (!domainDict.ContainsKey(domain.Key))

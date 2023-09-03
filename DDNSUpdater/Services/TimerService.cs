@@ -27,8 +27,10 @@ public class TimerService : ITimerService
         _logger.LogDebug("Timer callback executed at " + DateTime.Now);
         await using var asyncScope = _factory.CreateAsyncScope();
         var ddnsService = asyncScope.ServiceProvider.GetRequiredService<DDNSService>();
-        
-        ddnsService.Update();
+        var dockerService = asyncScope.ServiceProvider.GetRequiredService<DockerService>();
+
+        bool changed = await dockerService.UpdateDomainList();
+        ddnsService.Update(changed);
     }
 
     public void Start()
